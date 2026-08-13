@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserStatController extends Controller
 {
+    
     public function stats()
     {
         return response()->json([
@@ -16,7 +17,9 @@ class UserStatController extends Controller
             'total_pages_read' => $this->calculateTotalPagesRead(),
             'average_books_per_month' => $this->calculateAverageBooksPerMonth(),
             'most_read_author' => $this->calculateMostReadAuthor(),
+            'name' => Auth::user()->name,
         ]);
+
     }
 
     private function calculateBooksRead()
