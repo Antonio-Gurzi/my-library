@@ -10,6 +10,10 @@ function Dashboard() {
   const [booksError, setBooksError] = useState(null);
   const [booksLoading, setBooksLoading] = useState(true);
 
+  const handleBookSaved = (newBook) => {
+    setBooks([...books, newBook]);
+  };
+
   // loading parte da true perchè aspetto che i dati mi arrivino dal backend(quindi appena il componente è montato appare il loading)
   const [loading, setLoading] = useState(true);
   // il primo useEffetc che mi serve per le statistiche
@@ -74,6 +78,13 @@ function Dashboard() {
   // solo in caso i dati arrivino dal backend ,allora li mostro
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
+      {isModalOpen && (
+        <BookFormModal
+          book={null}
+          onClose={handleCloseModal}
+          onBookSaved={handleBookSaved}
+        />
+      )}
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold text-slate-800 mb-6">
           Benvenuto {stats.name}
