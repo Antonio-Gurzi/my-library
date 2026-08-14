@@ -68,7 +68,45 @@ function BookFormModal({ book, onClose, onBookSaved }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* i FormInput per title, author, ecc. li aggiungiamo dopo */}
+          <FormInput
+            type="text"
+            name="title"
+            placeholder="Scrivi il titolo del libro"
+            value={formData.title}
+            onChange={handleChange}
+          />
+
+          <FormInput
+            type="text"
+            name="author"
+            placeholder="Scrivi l'autore del libro"
+            value={formData.author}
+            onChange={handleChange}
+          />
+
+          <FormInput
+            type="number"
+            name="total_pages"
+            placeholder="Scrivi le pagine totali del libro"
+            value={formData.total_pages}
+            onChange={handleChange}
+          />
+
+          <FormInput
+            type="date"
+            name="start_date"
+            placeholder="Scrivi quando hai iniziato a leggere il libro"
+            value={formData.start_date}
+            onChange={handleChange}
+          />
+
+          <FormInput
+            type="date"
+            name="end_date"
+            placeholder="Scrivi quando hai terminato il libro"
+            value={formData.end_date}
+            onChange={handleChange}
+          />
         </form>
       </div>
     </div>

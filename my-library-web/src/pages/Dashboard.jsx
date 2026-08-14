@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import BookFormModal from "../components/BookFormModal";
 
 function Dashboard() {
   // stats parte null,quando monto il componente non ha nessun dato da server
@@ -9,6 +10,14 @@ function Dashboard() {
   const [books, setBooks] = useState([]);
   const [booksError, setBooksError] = useState(null);
   const [booksLoading, setBooksLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleBookSaved = (newBook) => {
     setBooks([...books, newBook]);
@@ -78,13 +87,6 @@ function Dashboard() {
   // solo in caso i dati arrivino dal backend ,allora li mostro
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
-      {isModalOpen && (
-        <BookFormModal
-          book={null}
-          onClose={handleCloseModal}
-          onBookSaved={handleBookSaved}
-        />
-      )}
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold text-slate-800 mb-6">
           Benvenuto {stats.name}
@@ -130,7 +132,15 @@ function Dashboard() {
 
       {/* lista libri */}
       <div className="max-w-3xl mx-auto mt-8">
-        <h2 className="text-xl font-bold text-slate-800 mb-4">I tuoi libri</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-800">I tuoi libri</h2>
+          <button
+            onClick={handleOpenModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-md transition"
+          >
+            Aggiungi libro
+          </button>
+        </div>
 
         {booksLoading ? (
           <p className="text-slate-500">Caricamento libri...</p>
@@ -153,6 +163,14 @@ function Dashboard() {
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <BookFormModal
+          book={null}
+          onClose={handleCloseModal}
+          onBookSaved={handleBookSaved}
+        />
+      )}
     </div>
   );
 }
