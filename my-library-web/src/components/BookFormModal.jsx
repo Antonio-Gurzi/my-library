@@ -67,6 +67,12 @@ function BookFormModal({ book, onClose, onBookSaved }) {
           {book ? "Modifica libro" : "Aggiungi libro"}
         </h2>
 
+        {error && (
+          <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2">
+            {error}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <FormInput
             type="text"
@@ -107,6 +113,18 @@ function BookFormModal({ book, onClose, onBookSaved }) {
             value={formData.end_date}
             onChange={handleChange}
           />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {loading
+              ? "Salvataggio..."
+              : book
+                ? "Salva modifiche"
+                : "Aggiungi libro"}
+          </button>
         </form>
       </div>
     </div>

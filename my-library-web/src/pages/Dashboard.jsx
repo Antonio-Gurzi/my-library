@@ -11,16 +11,45 @@ function Dashboard() {
   const [booksError, setBooksError] = useState(null);
   const [booksLoading, setBooksLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBook, setEditingBook] = useState(null);
 
+  // funzioni per aprire e chiudere le modali
   const handleOpenModal = () => {
+    setEditingBook(null);
     setIsModalOpen(true);
   };
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
+  // funzione per aggiorare la lista dei libri
   const handleBookSaved = (newBook) => {
     setBooks([...books, newBook]);
+  };
+
+  // funzione per aprire la modale in edit mode
+
+  const handleEditClick = (book) => {
+    setEditingBook(book);
+    setIsModalOpen(true);
+  };
+
+  // funzione per eliminare un libro
+  const handleDeleteClick = async (bookId) => {
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questo libro?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/books/${bookId}`);
+      setBooks(books.filter((book) => book.id !== bookId));
+    } catch (err) {
+      setBooksError(
+        err.response?.data?.message ?? "Errore durante l'eliminazione.",
+      );
+    }
   };
 
   // loading parte da true perchè aspetto che i dati mi arrivino dal backend(quindi appena il componente è montato appare il loading)
@@ -153,12 +182,29 @@ function Dashboard() {
         ) : (
           <div className="flex flex-col gap-2">
             {books.map((book) => (
-              <Link key={book.id} to={`/books/${book.id}`}>
-                <div className="bg-white rounded-lg shadow-sm p-4">
+              <div
+                key={book.id}
+                className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between"
+              >
+                <Link to={`/books/${book.id}`} className="flex-1">
                   <p className="font-semibold text-slate-800">{book.title}</p>
                   <p className="text-sm text-slate-500">{book.author}</p>
-                </div>
-              </Link>
+                </Link>
+
+                <button
+                  onClick={() => handleEditClick(book)}
+                  className="text-indigo-600 hover:text-indigo-800 text-sm font-semibold px-3"
+                >
+                  Modifica
+                </button>
+
+                <button
+                  onClick={() => handleDeleteClick(book.id)}
+                  className="text-red-600 hover:text-red-800 text-sm font-semibold px-3"
+                >
+                  Elimina
+                </button>
+              </div>
             ))}
           </div>
         )}
@@ -166,7 +212,7 @@ function Dashboard() {
 
       {isModalOpen && (
         <BookFormModal
-          book={null}
+          book={editingBook}
           onClose={handleCloseModal}
           onBookSaved={handleBookSaved}
         />
