@@ -23,8 +23,9 @@ function Dashboard() {
   };
 
   // funzione per aggiorare la lista dei libri
+  // uso filter per rimuovere il libro modificato non aggiornato e per poi aggiungerlo aggiornato (newBook) alla lista
   const handleBookSaved = (newBook) => {
-    setBooks([...books, newBook]);
+    setBooks([...books.filter((book) => book.id !== newBook.id), newBook]);
   };
 
   // funzione per aprire la modale in edit mode
