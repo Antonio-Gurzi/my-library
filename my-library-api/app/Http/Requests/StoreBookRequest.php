@@ -26,8 +26,8 @@ class StoreBookRequest extends FormRequest
             'title' =>  ['required', 'string', 'max:255'],
             'author' =>  ['required', 'string', 'max:255'],
             'total_pages' => ['required', 'integer', 'min:1'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date']
+            'start_date' => ['nullable', 'date', 'required_with:end_date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
 }
