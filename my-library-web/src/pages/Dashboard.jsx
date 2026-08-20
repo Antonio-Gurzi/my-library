@@ -26,6 +26,7 @@ function Dashboard() {
   // uso filter per rimuovere il libro modificato non aggiornato e per poi aggiungerlo aggiornato (newBook) alla lista
   const handleBookSaved = (newBook) => {
     setBooks([...books.filter((book) => book.id !== newBook.id), newBook]);
+    fetchStats();
   };
 
   // funzione per aprire la modale in edit mode
@@ -46,6 +47,7 @@ function Dashboard() {
     try {
       await api.delete(`/books/${bookId}`);
       setBooks(books.filter((book) => book.id !== bookId));
+      fetchStats();
     } catch (err) {
       setBooksError(
         err.response?.data?.message ?? "Errore durante l'eliminazione.",
@@ -55,26 +57,25 @@ function Dashboard() {
 
   // loading parte da true perchè aspetto che i dati mi arrivino dal backend(quindi appena il componente è montato appare il loading)
   const [loading, setLoading] = useState(true);
+
+  // richiesta GET alle statistiche utente
+  const fetchStats = async () => {
+    try {
+      // l'interceptor di api.js allega automaticamente il Bearer token
+      const response = await api.get("/user/stats");
+
+      // salviamo l'intero oggetto ricevuto dal backend
+      setStats(response.data);
+    } catch (err) {
+      setError(
+        err.response?.data?.message ?? "Errore di connessione, riprova.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   // il primo useEffetc che mi serve per le statistiche
   useEffect(() => {
-    // richiesta GET alle statistiche utente
-    const fetchStats = async () => {
-      try {
-        // l'interceptor di api.js allega automaticamente il Bearer token
-        const response = await api.get("/user/stats");
-
-        // salviamo l'intero oggetto ricevuto dal backend
-        setStats(response.data);
-      } catch (err) {
-        setError(
-          err.response?.data?.message ?? "Errore di connessione, riprova.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // chiamiamo subito la funzione appena definita
     fetchStats();
   }, []);
 
