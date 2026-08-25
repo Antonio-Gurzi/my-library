@@ -2,12 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
 import ConsiderationsList from "../components/ConsiderationsList";
+import AddConsiderationModal from "../components/AddConsiderationModal";
 
-// funzione di supporto per formattare le date in italiano
-// riceve una stringa data (o null) e restituisce un testo leggibile
 function formatDate(dateString) {
   if (!dateString) return null;
-
   const date = new Date(dateString);
   return date.toLocaleDateString("it-IT", {
     day: "numeric",
@@ -23,8 +21,32 @@ function BookDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // stati considerations, quotes e reading session
   const [isConsiderationsOpen, setIsConsiderationsOpen] = useState(false);
+  const [isAddConsiderationFormOpen, setIsAddConsiderationFormOpen] =
+    useState(false);
+
+  // stato delle considerazioni
+  const [considerations, setConsiderations] = useState([]);
+  const [considerationsLoading, setConsiderationsLoading] = useState(true);
+  const [considerationsError, setConsiderationsError] = useState(null);
+  // eliminare considerazione
+  function handleDeleteConsideration(considerationId) {
+    setConsiderations(considerations.filter((c) => c.id !== considerationId));
+  }
+
+  // fuori dall'useEffect: dovrà essere richiamata anche dopo il salvataggio
+  const fetchConsiderations = async () => {
+    try {
+      const response = await api.get(`/books/${id}/considerations`);
+      setConsiderations(response.data);
+    } catch (err) {
+      setConsiderationsError(
+        err.response?.data?.message ?? "Errore di connessione, riprova.",
+      );
+    } finally {
+      setConsiderationsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -41,6 +63,11 @@ function BookDetail() {
     };
 
     fetchBook();
+  }, [id]);
+
+  //useEffect dedicato alle considerazioni
+  useEffect(() => {
+    fetchConsiderations();
   }, [id]);
 
   if (loading) {
@@ -71,14 +98,12 @@ function BookDetail() {
               <p className="text-sm text-slate-500">Pagine totali</p>
               <p className="font-semibold text-slate-800">{book.total_pages}</p>
             </div>
-
             <div>
               <p className="text-sm text-slate-500">Data inizio</p>
               <p className="font-semibold text-slate-800">
                 {formatDate(book.start_date) ?? "Non ancora iniziato"}
               </p>
             </div>
-
             <div>
               <p className="text-sm text-slate-500">Data fine</p>
               <p className="font-semibold text-slate-800">
@@ -87,8 +112,6 @@ function BookDetail() {
             </div>
           </div>
         </div>
-
-        {/* consideration accordion */}
 
         <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
@@ -106,18 +129,36 @@ function BookDetail() {
               </span>
             </button>
 
-            <button className="text-indigo-600 font-semibold px-3">
+            <button
+              className="text-indigo-600 font-semibold px-3"
+              onClick={() => setIsAddConsiderationFormOpen(true)}
+            >
               Aggiungi +
             </button>
           </div>
 
           {isConsiderationsOpen && (
             <div className="border-t border-slate-100 p-4">
-              <ConsiderationsList bookId={id} />
+              <ConsiderationsList
+                considerations={considerations}
+                loading={considerationsLoading}
+                error={considerationsError}
+                onDeleteConsideration={handleDeleteConsideration}
+              />
             </div>
           )}
         </div>
       </div>
+
+      {isAddConsiderationFormOpen && (
+        <AddConsiderationModal
+          bookId={id}
+          onClose={() => setIsAddConsiderationFormOpen(false)}
+          onConsiderationSaved={(consideration) => {
+            setConsiderations([...considerations, consideration]);
+          }}
+        />
+      )}
     </div>
   );
 }
