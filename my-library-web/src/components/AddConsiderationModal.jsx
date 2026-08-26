@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../services/api";
 
-function AddConsiderationModal({ bookId, onClose, onConsiderationSaved }) {
+function AddConsiderationModal({
+  bookId,
+  onClose,
+  onConsiderationSaved,
+  consideration,
+}) {
   const [note, setNote] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setNote(consideration ? consideration.note : "");
+  }, [consideration]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,9 +21,18 @@ function AddConsiderationModal({ bookId, onClose, onConsiderationSaved }) {
     setLoading(true);
 
     try {
-      const response = await api.post(`/books/${bookId}/considerations`, {
-        note,
-      });
+      let response;
+
+      if (consideration) {
+        response = await api.put(
+          `/books/${bookId}/considerations/${consideration.id}`,
+          { note },
+        );
+      } else {
+        response = await api.post(`/books/${bookId}/considerations`, {
+          note,
+        });
+      }
 
       onConsiderationSaved(response.data.consideration);
       onClose();
@@ -37,7 +55,7 @@ function AddConsiderationModal({ bookId, onClose, onConsiderationSaved }) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-bold text-slate-800 mb-4">
-          Nuova considerazione
+          {consideration ? "Modifica considerazione" : "Nuova considerazione"}
         </h2>
 
         {error && (

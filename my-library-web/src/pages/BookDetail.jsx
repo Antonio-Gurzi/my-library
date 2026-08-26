@@ -29,10 +29,33 @@ function BookDetail() {
   const [considerations, setConsiderations] = useState([]);
   const [considerationsLoading, setConsiderationsLoading] = useState(true);
   const [considerationsError, setConsiderationsError] = useState(null);
+  const [editingConsideration, setEditingConsideration] = useState(null);
+
+  // apro modale in edit mode
+  const handleEditConsiderationClick = (consideration) => {
+    setEditingConsideration(consideration);
+    setIsAddConsiderationFormOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsAddConsiderationFormOpen(false);
+    setEditingConsideration(null);
+  };
+
   // eliminare considerazione
-  function handleDeleteConsideration(considerationId) {
-    setConsiderations(considerations.filter((c) => c.id !== considerationId));
-  }
+  const handleDeleteConsideration = async (considerationId) => {
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questa considerazione?",
+    );
+    if (!confirmed) return;
+    try {
+      await api.delete(`/books/${id}/considerations/${considerationId}`);
+      setConsiderations(considerations.filter((c) => c.id !== considerationId));
+    } catch (err) {
+      setConsiderationsError(
+        err.response?.data?.message ?? "Errore durante l'eliminazione.",
+      );
+    }
+  };
 
   // fuori dall'useEffect: dovrà essere richiamata anche dopo il salvataggio
   const fetchConsiderations = async () => {
@@ -144,6 +167,7 @@ function BookDetail() {
                 loading={considerationsLoading}
                 error={considerationsError}
                 onDeleteConsideration={handleDeleteConsideration}
+                onEditConsideration={handleEditConsiderationClick}
               />
             </div>
           )}
@@ -153,9 +177,14 @@ function BookDetail() {
       {isAddConsiderationFormOpen && (
         <AddConsiderationModal
           bookId={id}
-          onClose={() => setIsAddConsiderationFormOpen(false)}
-          onConsiderationSaved={(consideration) => {
-            setConsiderations([...considerations, consideration]);
+          onClose={handleCloseModal}
+          consideration={editingConsideration}
+          onConsiderationSaved={(savedConsideration) => {
+            setConsiderations([
+              ...considerations.filter((c) => c.id !== savedConsideration.id),
+              savedConsideration,
+            ]);
+            handleCloseModal();
           }}
         />
       )}
