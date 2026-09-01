@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import api from "../services/api";
 import ConsiderationsList from "../components/ConsiderationsList";
 import AddConsiderationModal from "../components/AddConsiderationModal";
+import QuotesList from "../components/QuotesList";
+import AddQuoteModal from "../components/AddQuoteModal";
 
 function formatDate(dateString) {
   if (!dateString) return null;
@@ -21,6 +23,7 @@ function BookDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // considerazioni
   const [isConsiderationsOpen, setIsConsiderationsOpen] = useState(false);
   const [isAddConsiderationFormOpen, setIsAddConsiderationFormOpen] =
     useState(false);
@@ -31,12 +34,21 @@ function BookDetail() {
   const [considerationsError, setConsiderationsError] = useState(null);
   const [editingConsideration, setEditingConsideration] = useState(null);
 
+  // stato delle quote
+
+  const [quotes, setQuotes] = useState([]);
+  const [quotesLoading, setQuotesLoading] = useState(true);
+  const [quotesError, setQuotesError] = useState(null);
+  const [editingQuote, setEditingQuote] = useState(null);
+  const [isQuotesOpen, setIsQuotesOpen] = useState(false);
+  const [isAddQuoteFormOpen, setIsAddQuoteFormOpen] = useState(false);
+
   // apro modale in edit mode
   const handleEditConsiderationClick = (consideration) => {
     setEditingConsideration(consideration);
     setIsAddConsiderationFormOpen(true);
   };
-  const handleCloseModal = () => {
+  const handleCloseConsiderationModal = () => {
     setIsAddConsiderationFormOpen(false);
     setEditingConsideration(null);
   };
@@ -57,7 +69,7 @@ function BookDetail() {
     }
   };
 
-  // fuori dall'useEffect: dovrà essere richiamata anche dopo il salvataggio
+  // fuori dall'useEffect per best practice nel caso in cui avessi necessità di richiamarla in un altra parte del codice
   const fetchConsiderations = async () => {
     try {
       const response = await api.get(`/books/${id}/considerations`);
@@ -70,7 +82,20 @@ function BookDetail() {
       setConsiderationsLoading(false);
     }
   };
-
+  // fetch delle quote
+  const fetchQuotes = async () => {
+    try {
+      const response = await api.get(`/books/${id}/quotes`);
+      setQuotes(response.data);
+    } catch (err) {
+      setQuotesError(
+        err.response?.data?.message ?? "Errore di connessione, riprova.",
+      );
+    } finally {
+      setQuotesLoading(false);
+    }
+  };
+  // useEffect per prendere i dati del libro
   useEffect(() => {
     const fetchBook = async () => {
       try {
@@ -92,6 +117,39 @@ function BookDetail() {
   useEffect(() => {
     fetchConsiderations();
   }, [id]);
+
+  // useEffect dedicato alle quote
+  useEffect(() => {
+    fetchQuotes();
+  }, [id]);
+
+  // mode edit per le quote
+  const handleEditQuoteClick = (quote) => {
+    setEditingQuote(quote);
+    setIsAddQuoteFormOpen(true);
+  };
+
+  // chiusura modale quote
+  const handleCloseQuoteModal = () => {
+    setIsAddQuoteFormOpen(false);
+    setEditingQuote(null);
+  };
+
+  // eliminazione quote
+  const handleDeleteQuote = async (quoteId) => {
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questa citazione?",
+    );
+    if (!confirmed) return;
+    try {
+      await api.delete(`/books/${id}/quotes/${quoteId}`);
+      setQuotes(quotes.filter((q) => q.id !== quoteId));
+    } catch (err) {
+      setQuotesError(
+        err.response?.data?.message ?? "Errore durante l'eliminazione.",
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -135,7 +193,7 @@ function BookDetail() {
             </div>
           </div>
         </div>
-
+        {/* accordion considerazioni */}
         <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
             <button
@@ -172,19 +230,73 @@ function BookDetail() {
             </div>
           )}
         </div>
-      </div>
 
+        {/* accordion quotes */}
+
+        <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
+          <div className="flex items-center justify-between w-full p-4">
+            <button
+              onClick={() => setIsQuotesOpen(!isQuotesOpen)}
+              className="flex items-center gap-2 flex-1"
+            >
+              <span className="font-semibold text-slate-800">Citazioni</span>
+              <span
+                className={`transition-transform ${isQuotesOpen ? "rotate-180" : ""}`}
+              >
+                ▼
+              </span>
+            </button>
+
+            <button
+              className="text-indigo-600 font-semibold px-3"
+              onClick={() => setIsAddQuoteFormOpen(true)}
+            >
+              Aggiungi +
+            </button>
+          </div>
+
+          {isQuotesOpen && (
+            <div className="border-t border-slate-100 p-4">
+              <QuotesList
+                quotes={quotes}
+                loading={quotesLoading}
+                error={quotesError}
+                onDeleteQuote={handleDeleteQuote}
+                onEditQuote={handleEditQuoteClick}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+      {/* form considerazioni */}
       {isAddConsiderationFormOpen && (
         <AddConsiderationModal
           bookId={id}
-          onClose={handleCloseModal}
+          onClose={handleCloseConsiderationModal}
           consideration={editingConsideration}
           onConsiderationSaved={(savedConsideration) => {
             setConsiderations([
               ...considerations.filter((c) => c.id !== savedConsideration.id),
               savedConsideration,
             ]);
-            handleCloseModal();
+            handleCloseConsiderationModal();
+          }}
+        />
+      )}
+
+      {/* form quote */}
+
+      {isAddQuoteFormOpen && (
+        <AddQuoteModal
+          bookId={id}
+          quote={editingQuote}
+          onClose={handleCloseQuoteModal}
+          onQuoteSaved={(savedQuote) => {
+            setQuotes([
+              ...quotes.filter((q) => q.id !== savedQuote.id),
+              savedQuote,
+            ]);
+            handleCloseQuoteModal();
           }}
         />
       )}
