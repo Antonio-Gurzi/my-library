@@ -5,16 +5,9 @@ import ConsiderationsList from "../components/ConsiderationsList";
 import AddConsiderationModal from "../components/AddConsiderationModal";
 import QuotesList from "../components/QuotesList";
 import AddQuoteModal from "../components/AddQuoteModal";
+import { formatDate } from "../utils/dateUtils";
 
-function formatDate(dateString) {
-  if (!dateString) return null;
-  const date = new Date(dateString);
-  return date.toLocaleDateString("it-IT", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
+
 
 function BookDetail() {
   const { id } = useParams();
