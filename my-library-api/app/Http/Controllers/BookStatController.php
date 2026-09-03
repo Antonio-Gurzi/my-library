@@ -68,6 +68,6 @@ class BookStatController extends Controller
         $endDate = $book->end_date ?? now();
 
         // calcolo la differenza dei giorni tra la data di inizio e fine
-        return $book->start_date->diffInDays($endDate);
+        return (int) floor($book->start_date->diffInDays($endDate));
     }
 }
