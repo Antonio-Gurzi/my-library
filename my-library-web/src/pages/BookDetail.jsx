@@ -5,9 +5,9 @@ import ConsiderationsList from "../components/ConsiderationsList";
 import AddConsiderationModal from "../components/AddConsiderationModal";
 import QuotesList from "../components/QuotesList";
 import AddQuoteModal from "../components/AddQuoteModal";
-import { formatDate } from "../utils/dateUtils";
-
-
+import ReadingSessionsList from "../components/ReadingSessionsList";
+import AddReadingSessionModal from "../components/AddReadingSessionModal";
+import { formatDate } from "../utils/formatDate";
 
 function BookDetail() {
   const { id } = useParams();
@@ -28,13 +28,21 @@ function BookDetail() {
   const [editingConsideration, setEditingConsideration] = useState(null);
 
   // stato delle quote
-
   const [quotes, setQuotes] = useState([]);
   const [quotesLoading, setQuotesLoading] = useState(true);
   const [quotesError, setQuotesError] = useState(null);
   const [editingQuote, setEditingQuote] = useState(null);
   const [isQuotesOpen, setIsQuotesOpen] = useState(false);
   const [isAddQuoteFormOpen, setIsAddQuoteFormOpen] = useState(false);
+
+  // stato delle sessioni di lettura
+  const [readingSessions, setReadingSessions] = useState([]);
+  const [readingSessionsLoading, setReadingSessionsLoading] = useState(true);
+  const [readingSessionsError, setReadingSessionsError] = useState(null);
+  const [editingReadingSession, setEditingReadingSession] = useState(null);
+  const [isReadingSessionsOpen, setIsReadingSessionsOpen] = useState(false);
+  const [isAddReadingSessionFormOpen, setIsAddReadingSessionFormOpen] =
+    useState(false);
 
   // apro modale in edit mode
   const handleEditConsiderationClick = (consideration) => {
@@ -75,6 +83,7 @@ function BookDetail() {
       setConsiderationsLoading(false);
     }
   };
+
   // fetch delle quote
   const fetchQuotes = async () => {
     try {
@@ -88,6 +97,21 @@ function BookDetail() {
       setQuotesLoading(false);
     }
   };
+
+  // fetch delle sessioni di lettura
+  const fetchReadingSessions = async () => {
+    try {
+      const response = await api.get(`/books/${id}/reading-sessions`);
+      setReadingSessions(response.data);
+    } catch (err) {
+      setReadingSessionsError(
+        err.response?.data?.message ?? "Errore di connessione, riprova.",
+      );
+    } finally {
+      setReadingSessionsLoading(false);
+    }
+  };
+
   // useEffect per prendere i dati del libro
   useEffect(() => {
     const fetchBook = async () => {
@@ -116,6 +140,11 @@ function BookDetail() {
     fetchQuotes();
   }, [id]);
 
+  // useEffect dedicato alle sessioni di lettura
+  useEffect(() => {
+    fetchReadingSessions();
+  }, [id]);
+
   // mode edit per le quote
   const handleEditQuoteClick = (quote) => {
     setEditingQuote(quote);
@@ -139,6 +168,36 @@ function BookDetail() {
       setQuotes(quotes.filter((q) => q.id !== quoteId));
     } catch (err) {
       setQuotesError(
+        err.response?.data?.message ?? "Errore durante l'eliminazione.",
+      );
+    }
+  };
+
+  // mode edit per le sessioni di lettura
+  const handleEditReadingSessionClick = (readingSession) => {
+    setEditingReadingSession(readingSession);
+    setIsAddReadingSessionFormOpen(true);
+  };
+
+  // chiusura modale sessioni di lettura
+  const handleCloseReadingSessionModal = () => {
+    setIsAddReadingSessionFormOpen(false);
+    setEditingReadingSession(null);
+  };
+
+  // eliminazione sessione di lettura
+  const handleDeleteReadingSession = async (readingSessionId) => {
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questa sessione di lettura?",
+    );
+    if (!confirmed) return;
+    try {
+      await api.delete(`/books/${id}/reading-sessions/${readingSessionId}`);
+      setReadingSessions(
+        readingSessions.filter((rs) => rs.id !== readingSessionId),
+      );
+    } catch (err) {
+      setReadingSessionsError(
         err.response?.data?.message ?? "Errore durante l'eliminazione.",
       );
     }
@@ -186,6 +245,7 @@ function BookDetail() {
             </div>
           </div>
         </div>
+
         {/* accordion considerazioni */}
         <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
@@ -225,7 +285,6 @@ function BookDetail() {
         </div>
 
         {/* accordion quotes */}
-
         <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
             <button
@@ -260,7 +319,46 @@ function BookDetail() {
             </div>
           )}
         </div>
+
+        {/* accordion sessioni di lettura */}
+        <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
+          <div className="flex items-center justify-between w-full p-4">
+            <button
+              onClick={() => setIsReadingSessionsOpen(!isReadingSessionsOpen)}
+              className="flex items-center gap-2 flex-1"
+            >
+              <span className="font-semibold text-slate-800">
+                Sessioni di lettura
+              </span>
+              <span
+                className={`transition-transform ${isReadingSessionsOpen ? "rotate-180" : ""}`}
+              >
+                ▼
+              </span>
+            </button>
+
+            <button
+              className="text-indigo-600 font-semibold px-3"
+              onClick={() => setIsAddReadingSessionFormOpen(true)}
+            >
+              Aggiungi +
+            </button>
+          </div>
+
+          {isReadingSessionsOpen && (
+            <div className="border-t border-slate-100 p-4">
+              <ReadingSessionsList
+                readingSessions={readingSessions}
+                loading={readingSessionsLoading}
+                error={readingSessionsError}
+                onDeleteReadingSession={handleDeleteReadingSession}
+                onEditReadingSession={handleEditReadingSessionClick}
+              />
+            </div>
+          )}
+        </div>
       </div>
+
       {/* form considerazioni */}
       {isAddConsiderationFormOpen && (
         <AddConsiderationModal
@@ -278,7 +376,6 @@ function BookDetail() {
       )}
 
       {/* form quote */}
-
       {isAddQuoteFormOpen && (
         <AddQuoteModal
           bookId={id}
@@ -290,6 +387,24 @@ function BookDetail() {
               savedQuote,
             ]);
             handleCloseQuoteModal();
+          }}
+        />
+      )}
+
+      {/* form sessioni di lettura */}
+      {isAddReadingSessionFormOpen && (
+        <AddReadingSessionModal
+          bookId={id}
+          readingSession={editingReadingSession}
+          onClose={handleCloseReadingSessionModal}
+          onReadingSessionSaved={(savedReadingSession) => {
+            setReadingSessions([
+              ...readingSessions.filter(
+                (rs) => rs.id !== savedReadingSession.id,
+              ),
+              savedReadingSession,
+            ]);
+            handleCloseReadingSessionModal();
           }}
         />
       )}
