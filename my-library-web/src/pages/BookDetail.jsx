@@ -279,6 +279,41 @@ function BookDetail() {
                   : stats.total_reading_time_days}
             </p>
           </div>
+          {/* stats percentuale di completamento */}
+          <div>
+            <p className="text-sm text-slate-500">
+              Percentuale di completamento
+            </p>
+            <p className="font-semibold text-slate-800">
+              {statsLoading
+                ? "Caricamento..."
+                : statsError
+                  ? "Errore"
+                  : `${stats.completion_percentage} %`}
+            </p>
+          </div>
+          {/* stats pagine per sessione */}
+          <div>
+            <p className="text-sm text-slate-500">Pagine lette per sessione</p>
+            <p className="font-semibold text-slate-800">
+              {statsLoading
+                ? "Caricamento..."
+                : statsError
+                  ? "Errore"
+                  : stats.pages_per_session.join(", ")}
+            </p>
+          </div>
+          {/* stats pagine per giorni di lettura */}
+          <div>
+            <p className="text-sm text-slate-500">Giorni di lettura</p>
+            <p className="font-semibold text-slate-800">
+              {statsLoading
+                ? "Caricamento..."
+                : statsError
+                  ? "Errore"
+                  : stats.reading_days}
+            </p>
+          </div>
         </div>
 
         {/* accordion considerazioni */}
