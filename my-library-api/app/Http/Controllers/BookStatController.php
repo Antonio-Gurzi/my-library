@@ -26,8 +26,14 @@ class BookStatController extends Controller
 
     private function calculateCompletionPercentage(Book $book)
     {
-        // prendo l ultima sessione ordinate per data di lettura descrescente
-        $lastSession = $book->readingSessions()->orderBy('date', 'desc')->first();
+        // prendo l'ultima sessione ordinata per data di lettura decrescente
+        // FIX: 'date' è una colonna di tipo date (solo giorno, senza ora), quindi due sessioni
+        // create nello stesso giorno avrebbero un valore identico e l'ordinamento sarebbe ambiguo.
+        // Aggiungo 'created_at' come criterio secondario per rompere il pareggio in modo affidabile.
+        $lastSession = $book->readingSessions()
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->first();
         // se non ci sono sessioni di lettura mi ritorni 0
         if (!$lastSession) {
             return 0;
@@ -40,7 +46,12 @@ class BookStatController extends Controller
     private function calculatePagesPerSession(Book $book)
     {
         // recupero tutte le sessioni di lettura del libro più vecchia alla più recente
-        $sessions = $book->readingSessions()->orderBy('date', 'asc')->get();
+        // FIX: stesso motivo di sopra. L'ordine relativo tra due sessioni con la stessa 'date'
+        // non era garantito, e questo calcolo dipende dall'ordine cronologico corretto.
+        $sessions = $book->readingSessions()
+            ->orderBy('date', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
         // creo un array per memorizzare il numero di pagine lette per ogni sessione
         $pagesPerSession = [];
         // creo una variabile per tenere conto della pagina precedente,la prima sessione sarà 0

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserStatController extends Controller
 {
-    
+
     public function stats()
     {
         return response()->json([
@@ -19,7 +19,6 @@ class UserStatController extends Controller
             'most_read_author' => $this->calculateMostReadAuthor(),
             'name' => Auth::user()->name,
         ]);
-
     }
 
     private function calculateBooksRead()
@@ -45,7 +44,15 @@ class UserStatController extends Controller
             if ($book->end_date !== null) {
                 $totalPagesRead += $book->total_pages;
             } else {
-                $lastSession = $book->readingSessions()->orderBy('date', 'desc')->first();
+                // FIX: 'date' è una colonna di tipo date (solo giorno, senza ora), quindi due
+                // sessioni create nello stesso giorno avevano un valore identico e l'ordinamento
+                // era ambiguo (bug scoperto da Antonio: il conteggio restava fermo al valore
+                // della prima sessione del giorno invece di prendere l'ultima registrata).
+                // Aggiungo 'created_at' come criterio secondario per rompere il pareggio.
+                $lastSession = $book->readingSessions()
+                    ->orderBy('date', 'desc')
+                    ->orderBy('created_at', 'desc')
+                    ->first();
 
                 if ($lastSession) {
                     $totalPagesRead += $lastSession->current_page;
