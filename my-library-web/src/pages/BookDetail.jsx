@@ -271,7 +271,9 @@ function BookDetail() {
           </div>
           {/* stats giorni totali di lettura */}
           <div>
-            <p className="text-sm text-slate-500">Giorni totali di lettura</p>
+            <p className="text-sm text-slate-500">
+              Giorni passati da inizio libro
+            </p>
             <p className="font-semibold text-slate-800">
               {statsLoading
                 ? "Caricamento..."
@@ -296,12 +298,15 @@ function BookDetail() {
           {/* stats pagine per sessione */}
           <div>
             <p className="text-sm text-slate-500">Pagine lette per sessione</p>
+
             <p className="font-semibold text-slate-800">
               {statsLoading
                 ? "Caricamento..."
                 : statsError
                   ? "Errore"
-                  : stats.pages_per_session.join(", ")}
+                  : stats.pages_per_session?.length
+                    ? stats.pages_per_session.join(", ")
+                    : 0}
             </p>
           </div>
           {/* stats conteggio sessioni di lettura */}
