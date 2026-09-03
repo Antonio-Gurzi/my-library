@@ -203,6 +203,30 @@ function BookDetail() {
     }
   };
 
+  // --------------------------- stati statistiche libro  ---------------------------
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+
+  // --------------------------- fetch statistiche libro  ---------------------------
+  const fetchStats = async () => {
+    try {
+      const response = await api.get(`/books/${id}/stats`);
+      setStats(response.data);
+    } catch (err) {
+      setStatsError(
+        err.response?.data?.message ?? "Errore di connessione, riprova.",
+      );
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  // useEffect dedicato alle statistiche
+  useEffect(() => {
+    fetchStats();
+  }, [id]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100">
@@ -243,6 +267,17 @@ function BookDetail() {
                 {formatDate(book.end_date) ?? "In corso"}
               </p>
             </div>
+          </div>
+          {/* stats giorni totali di lettura */}
+          <div>
+            <p className="text-sm text-slate-500">Giorni totali di lettura</p>
+            <p className="font-semibold text-slate-800">
+              {statsLoading
+                ? "Caricamento..."
+                : statsError
+                  ? "Errore"
+                  : stats.total_reading_time_days}
+            </p>
           </div>
         </div>
 
