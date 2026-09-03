@@ -196,6 +196,7 @@ function BookDetail() {
       setReadingSessions(
         readingSessions.filter((rs) => rs.id !== readingSessionId),
       );
+      fetchStats(); //aggiorno le statistiche dopo l'eliminazione di una sessione di lettura
     } catch (err) {
       setReadingSessionsError(
         err.response?.data?.message ?? "Errore durante l'eliminazione.",
@@ -303,9 +304,9 @@ function BookDetail() {
                   : stats.pages_per_session.join(", ")}
             </p>
           </div>
-          {/* stats pagine per giorni di lettura */}
+          {/* stats conteggio sessioni di lettura */}
           <div>
-            <p className="text-sm text-slate-500">Giorni di lettura</p>
+            <p className="text-sm text-slate-500">Sessioni di lettura</p>
             <p className="font-semibold text-slate-800">
               {statsLoading
                 ? "Caricamento..."
@@ -475,6 +476,7 @@ function BookDetail() {
               savedReadingSession,
             ]);
             handleCloseReadingSessionModal();
+            fetchStats(); // Aggiorna le statistiche dopo aver salvato una nuova sessione
           }}
         />
       )}
