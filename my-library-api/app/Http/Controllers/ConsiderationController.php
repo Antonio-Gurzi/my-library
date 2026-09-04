@@ -43,9 +43,7 @@ class ConsiderationController extends Controller
         }
 
         // controllo se l utente autenticato è il proprietario del libro
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare le considerazioni di questo libro'], 403);
-        }
+        $this->authorize('view', $consideration);
 
         return response()->json($consideration, 200);
     }
@@ -58,9 +56,7 @@ class ConsiderationController extends Controller
         }
 
         // controllo se l utente autenticato è il proprietario del libro
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare le considerazioni di questo libro'], 403);
-        }
+        $this->authorize('update', $consideration);
 
         $validatedData = $request->validated();
 
@@ -77,9 +73,7 @@ class ConsiderationController extends Controller
         }
 
         // controllo se l utente autenticato è il proprietario del libro
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare le considerazioni di questo libro'], 403);
-        }
+        $this->authorize('delete', $consideration);
 
         $consideration->delete();
 

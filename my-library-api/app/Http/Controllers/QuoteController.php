@@ -53,9 +53,7 @@ class QuoteController extends Controller
             return response()->json(['message' => 'Citazione non trovata per questo libro'], 404);
         }
         // controllo il libro passato nell url appartiene all utente loggato
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare le citazioni di questo libro'], 403);
-        }
+        $this->authorize('view', $quote);
 
 
         return response()->json($quote, 200);
@@ -71,9 +69,7 @@ class QuoteController extends Controller
             return response()->json(['message' => 'Citazione non trovata per questo libro'], 404);
         }
         // controllo il libro passato nell url appartiene all utente loggato
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare le citazioni di questo libro'], 403);
-        }
+        $this->authorize('update', $quote);
 
         $validatedData = $request->validated();
 
@@ -89,9 +85,7 @@ class QuoteController extends Controller
             return response()->json(['message' => 'Citazione non trovata per questo libro'], 404);
         }
         // controllo il libro passato nell url appartiene all utente loggato
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare le citazioni di questo libro'], 403);
-        }
+        $this->authorize('delete', $quote);
 
         $quote->delete();
 

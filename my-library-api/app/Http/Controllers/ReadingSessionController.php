@@ -54,9 +54,7 @@ class ReadingSessionController extends Controller
         }
 
         // controllo che il libro deve appartenere all'utente autenticato
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare questa sessione'], 403);
-        }
+        $this->authorize('view', $readingSession);
 
         return response()->json($readingSession, 200);
     }
@@ -73,9 +71,7 @@ class ReadingSessionController extends Controller
         }
 
         // controllo che il libro deve appartenere all'utente autenticato
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare questa sessione'], 403);
-        }
+        $this->authorize('update', $readingSession);
 
         // eseguo la validazione dei dati di input
         $validatedData = $request->validated();
@@ -99,9 +95,7 @@ class ReadingSessionController extends Controller
         }
 
         // controllo che il libro deve appartenere all'utente autenticato
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare questa sessione'], 403);
-        }
+        $this->authorize('delete', $readingSession);
 
         $readingSession->delete();
 

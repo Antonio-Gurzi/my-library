@@ -42,9 +42,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per visualizzare questo libro'], 403);
-        }
+        $this->authorize('view', $book);
         return response()->json($book, 200);
     }
 
@@ -53,9 +51,7 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per modificare questo libro'], 403);
-        }
+        $this->authorize('update', $book);
         $validatedData = $request->validated();
 
         $book->update($validatedData);
@@ -67,9 +63,7 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        if ($book->user_id !== Auth::user()->id) {
-            return response()->json(['message' => 'Non hai i permessi per eliminare questo libro'], 403);
-        }
+        $this->authorize('delete', $book);
 
         $book->delete();
 
