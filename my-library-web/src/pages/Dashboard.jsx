@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import BookFormModal from "../components/BookFormModal";
+import { capitalizeWords } from "../utils/formatAuthorName";
 
 function Dashboard() {
-  // stats parte null,quando monto il componente non ha nessun dato da server
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
   const [books, setBooks] = useState([]);
@@ -13,7 +13,6 @@ function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
 
-  // funzioni per aprire e chiudere le modali
   const handleOpenModal = () => {
     setEditingBook(null);
     setIsModalOpen(true);
@@ -22,26 +21,20 @@ function Dashboard() {
     setIsModalOpen(false);
   };
 
-  // funzione per aggiorare la lista dei libri
-  // uso filter per rimuovere il libro modificato non aggiornato e per poi aggiungerlo aggiornato (newBook) alla lista
   const handleBookSaved = (newBook) => {
     setBooks([...books.filter((book) => book.id !== newBook.id), newBook]);
     fetchStats();
   };
-
-  // funzione per aprire la modale in edit mode
 
   const handleEditClick = (book) => {
     setEditingBook(book);
     setIsModalOpen(true);
   };
 
-  // funzione per eliminare un libro
   const handleDeleteClick = async (bookId) => {
     const confirmed = window.confirm(
       "Sei sicuro di voler eliminare questo libro?",
     );
-
     if (!confirmed) return;
 
     try {
@@ -55,16 +48,11 @@ function Dashboard() {
     }
   };
 
-  // loading parte da true perchè aspetto che i dati mi arrivino dal backend(quindi appena il componente è montato appare il loading)
   const [loading, setLoading] = useState(true);
 
-  // richiesta GET alle statistiche utente
   const fetchStats = async () => {
     try {
-      // l'interceptor di api.js allega automaticamente il Bearer token
       const response = await api.get("/user/stats");
-
-      // salviamo l'intero oggetto ricevuto dal backend
       setStats(response.data);
     } catch (err) {
       setError(
@@ -74,12 +62,11 @@ function Dashboard() {
       setLoading(false);
     }
   };
-  // il primo useEffetc che mi serve per le statistiche
+
   useEffect(() => {
     fetchStats();
   }, []);
 
-  // il secondo useEffect che mi serve per la lista dei libri dell utente
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -93,119 +80,130 @@ function Dashboard() {
         setBooksLoading(false);
       }
     };
-
     fetchBooks();
   }, []);
 
-  // finché stiamo aspettando la risposta, mostriamo un messaggio semplice
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
-        <p className="text-slate-500">Caricamento statistiche...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900">
+        <p className="text-amber-300">Caricamento statistiche...</p>
       </div>
     );
   }
 
-  // se qualcosa è andato storto, mostriamo l'errore
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
-        <p className="text-red-600">Errore: {error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900">
+        <p className="text-red-200">Errore: {error}</p>
       </div>
     );
   }
 
-  // solo in caso i dati arrivino dal backend ,allora li mostro
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 px-4 py-6 sm:py-10">
+      <div className="max-w-3xl lg:max-w-5xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold text-amber-200 mb-6">
           Benvenuto {stats.name}
         </h1>
-        {/* statistiche libri */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <p className="text-sm text-slate-500">Libri letti</p>
-            <p className="text-xl font-semibold text-slate-800">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="bg-amber-100 border border-amber-700 border-l-4 border-l-amber-600 rounded-lg shadow-md p-4">
+            <p className="text-xs text-center uppercase tracking-wide text-amber-900 font-bold">
+              Libri letti
+            </p>
+            <p className="text-lg text-amber-800 text-center">
               {stats.books_read}
             </p>
           </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <p className="text-sm text-slate-500">Libri in corso</p>
-            <p className="text-xl font-semibold text-slate-800">
+          <div className="bg-amber-100 border border-amber-700 border-l-4 border-l-amber-600 rounded-lg shadow-md p-4">
+            <p className="text-xs text-center uppercase tracking-wide text-amber-900 font-bold">
+              Libri in corso
+            </p>
+            <p className="text-lg text-amber-800 text-center">
               {stats.books_in_progress}
             </p>
           </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <p className="text-sm text-slate-500">Pagine totali lette</p>
-            <p className="text-xl font-semibold text-slate-800">
+          <div className="bg-amber-100 border border-amber-700 border-l-4 border-l-amber-600 rounded-lg shadow-md p-4">
+            <p className="text-xs text-center uppercase tracking-wide text-amber-900 font-bold">
+              Pagine totali lette
+            </p>
+            <p className="text-lg text-amber-800 text-center">
               {stats.total_pages_read}
             </p>
           </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <p className="text-sm text-slate-500">Media libri al mese</p>
-            <p className="text-xl font-semibold text-slate-800">
+          <div className="bg-amber-100 border border-amber-700 border-l-4 border-l-amber-600 rounded-lg shadow-md p-4">
+            <p className="text-xs text-center uppercase tracking-wide text-amber-900 font-bold">
+              Media libri al mese
+            </p>
+            <p className="text-lg text-amber-800 text-center">
               {stats.average_books_per_month}
             </p>
           </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <p className="text-sm text-slate-500">Autore più letto</p>
-            <p className="text-xl font-semibold text-slate-800">
-              {stats.most_read_author}
+          <div className="col-span-2 sm:col-span-3 lg:col-span-1 bg-amber-100 border border-amber-700 border-l-4 border-l-amber-600 rounded-lg shadow-md p-4">
+            <p className="text-xs text-center uppercase tracking-wide text-amber-900 font-bold">
+              Autore più letto
+            </p>
+            <p className="text-md text-center text-amber-800">
+              {capitalizeWords(stats.most_read_author)}
             </p>
           </div>
         </div>
       </div>
 
-      {/* lista libri */}
-      <div className="max-w-3xl mx-auto mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-slate-800">I tuoi libri</h2>
+      <div className="max-w-3xl lg:max-w-5xl mx-auto mt-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+          <h2 className="text-xl font-bold text-amber-200">I tuoi libri</h2>
           <button
             onClick={handleOpenModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-md transition"
+            className="w-full sm:w-auto bg-amber-700 hover:bg-amber-800 text-amber-50 text-sm font-semibold px-4 py-2.5 sm:py-2 rounded-md transition"
           >
             Aggiungi libro
           </button>
         </div>
 
         {booksLoading ? (
-          <p className="text-slate-500">Caricamento libri...</p>
+          <p className="text-amber-300">Caricamento libri...</p>
         ) : booksError ? (
-          <p className="text-red-600">Errore: {booksError}</p>
+          <p className="text-red-200">Errore: {booksError}</p>
         ) : books.length === 0 ? (
-          <p className="text-slate-500">
+          <p className="text-amber-300">
             Non hai ancora aggiunto nessun libro.
           </p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {books.map((book) => (
               <div
                 key={book.id}
-                className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between"
+                className="bg-amber-100 border border-amber-700 rounded-lg shadow-md p-4 flex flex-col justify-between gap-3 h-full transition hover:shadow-lg hover:-translate-y-0.5"
               >
-                <Link to={`/books/${book.id}`} className="flex-1">
-                  <p className="font-semibold text-slate-800">{book.title}</p>
-                  <p className="text-sm text-slate-500">{book.author}</p>
+                <Link
+                  to={`/books/${book.id}`}
+                  className="flex items-start gap-3"
+                >
+                  <div className="shrink-0 w-10 h-10 rounded-md bg-amber-700 text-amber-50 flex items-center justify-center font-bold">
+                    {book.title.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-stone-800 line-clamp-2">
+                      {book.title.charAt(0).toUpperCase() + book.title.slice(1)}
+                    </p>
+                    <p className="text-sm text-stone-600 text-center">{capitalizeWords(book.author)}</p>
+                  </div>
                 </Link>
 
-                <button
-                  onClick={() => handleEditClick(book)}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm font-semibold px-3"
-                >
-                  Modifica
-                </button>
-
-                <button
-                  onClick={() => handleDeleteClick(book.id)}
-                  className="text-red-600 hover:text-red-800 text-sm font-semibold px-3"
-                >
-                  Elimina
-                </button>
+                <div className="flex items-center gap-3 border-t border-amber-300 pt-3 justify-center">
+                  <button
+                    onClick={() => handleEditClick(book)}
+                    className="text-amber-700 hover:text-amber-900 text-sm font-semibold px-3"
+                  >
+                    Modifica
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(book.id)}
+                    className="text-red-700 hover:text-red-800 text-sm font-semibold px-3"
+                  >
+                    Elimina
+                  </button>
+                </div>
               </div>
             ))}
           </div>

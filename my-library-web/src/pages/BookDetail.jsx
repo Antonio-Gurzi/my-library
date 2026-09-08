@@ -8,6 +8,7 @@ import AddQuoteModal from "../components/AddQuoteModal";
 import ReadingSessionsList from "../components/ReadingSessionsList";
 import AddReadingSessionModal from "../components/AddReadingSessionModal";
 import { formatDate } from "../utils/formatDate";
+import { capitalizeWords } from "../utils/formatAuthorName";
 
 function BookDetail() {
   const { id } = useParams();
@@ -16,18 +17,15 @@ function BookDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // considerazioni
   const [isConsiderationsOpen, setIsConsiderationsOpen] = useState(false);
   const [isAddConsiderationFormOpen, setIsAddConsiderationFormOpen] =
     useState(false);
 
-  // stato delle considerazioni
   const [considerations, setConsiderations] = useState([]);
   const [considerationsLoading, setConsiderationsLoading] = useState(true);
   const [considerationsError, setConsiderationsError] = useState(null);
   const [editingConsideration, setEditingConsideration] = useState(null);
 
-  // stato delle quote
   const [quotes, setQuotes] = useState([]);
   const [quotesLoading, setQuotesLoading] = useState(true);
   const [quotesError, setQuotesError] = useState(null);
@@ -35,7 +33,6 @@ function BookDetail() {
   const [isQuotesOpen, setIsQuotesOpen] = useState(false);
   const [isAddQuoteFormOpen, setIsAddQuoteFormOpen] = useState(false);
 
-  // stato delle sessioni di lettura
   const [readingSessions, setReadingSessions] = useState([]);
   const [readingSessionsLoading, setReadingSessionsLoading] = useState(true);
   const [readingSessionsError, setReadingSessionsError] = useState(null);
@@ -44,7 +41,6 @@ function BookDetail() {
   const [isAddReadingSessionFormOpen, setIsAddReadingSessionFormOpen] =
     useState(false);
 
-  // apro modale in edit mode
   const handleEditConsiderationClick = (consideration) => {
     setEditingConsideration(consideration);
     setIsAddConsiderationFormOpen(true);
@@ -54,7 +50,6 @@ function BookDetail() {
     setEditingConsideration(null);
   };
 
-  // eliminare considerazione
   const handleDeleteConsideration = async (considerationId) => {
     const confirmed = window.confirm(
       "Sei sicuro di voler eliminare questa considerazione?",
@@ -70,7 +65,6 @@ function BookDetail() {
     }
   };
 
-  // fuori dall'useEffect per best practice nel caso in cui avessi necessità di richiamarla in un altra parte del codice
   const fetchConsiderations = async () => {
     try {
       const response = await api.get(`/books/${id}/considerations`);
@@ -84,7 +78,6 @@ function BookDetail() {
     }
   };
 
-  // fetch delle quote
   const fetchQuotes = async () => {
     try {
       const response = await api.get(`/books/${id}/quotes`);
@@ -98,7 +91,6 @@ function BookDetail() {
     }
   };
 
-  // fetch delle sessioni di lettura
   const fetchReadingSessions = async () => {
     try {
       const response = await api.get(`/books/${id}/reading-sessions`);
@@ -112,7 +104,6 @@ function BookDetail() {
     }
   };
 
-  // useEffect per prendere i dati del libro
   useEffect(() => {
     const fetchBook = async () => {
       try {
@@ -130,34 +121,28 @@ function BookDetail() {
     fetchBook();
   }, [id]);
 
-  //useEffect dedicato alle considerazioni
   useEffect(() => {
     fetchConsiderations();
   }, [id]);
 
-  // useEffect dedicato alle quote
   useEffect(() => {
     fetchQuotes();
   }, [id]);
 
-  // useEffect dedicato alle sessioni di lettura
   useEffect(() => {
     fetchReadingSessions();
   }, [id]);
 
-  // mode edit per le quote
   const handleEditQuoteClick = (quote) => {
     setEditingQuote(quote);
     setIsAddQuoteFormOpen(true);
   };
 
-  // chiusura modale quote
   const handleCloseQuoteModal = () => {
     setIsAddQuoteFormOpen(false);
     setEditingQuote(null);
   };
 
-  // eliminazione quote
   const handleDeleteQuote = async (quoteId) => {
     const confirmed = window.confirm(
       "Sei sicuro di voler eliminare questa citazione?",
@@ -173,19 +158,16 @@ function BookDetail() {
     }
   };
 
-  // mode edit per le sessioni di lettura
   const handleEditReadingSessionClick = (readingSession) => {
     setEditingReadingSession(readingSession);
     setIsAddReadingSessionFormOpen(true);
   };
 
-  // chiusura modale sessioni di lettura
   const handleCloseReadingSessionModal = () => {
     setIsAddReadingSessionFormOpen(false);
     setEditingReadingSession(null);
   };
 
-  // eliminazione sessione di lettura
   const handleDeleteReadingSession = async (readingSessionId) => {
     const confirmed = window.confirm(
       "Sei sicuro di voler eliminare questa sessione di lettura?",
@@ -196,7 +178,7 @@ function BookDetail() {
       setReadingSessions(
         readingSessions.filter((rs) => rs.id !== readingSessionId),
       );
-      fetchStats(); //aggiorno le statistiche dopo l'eliminazione di una sessione di lettura
+      fetchStats();
     } catch (err) {
       setReadingSessionsError(
         err.response?.data?.message ?? "Errore durante l'eliminazione.",
@@ -204,12 +186,10 @@ function BookDetail() {
     }
   };
 
-  // --------------------------- stati statistiche libro  ---------------------------
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(null);
 
-  // --------------------------- fetch statistiche libro  ---------------------------
   const fetchStats = async () => {
     try {
       const response = await api.get(`/books/${id}/stats`);
@@ -223,124 +203,129 @@ function BookDetail() {
     }
   };
 
-  // useEffect dedicato alle statistiche
   useEffect(() => {
     fetchStats();
   }, [id]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
-        <p className="text-slate-500">Caricamento libro...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900">
+        <p className="text-amber-300">Caricamento libro...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
-        <p className="text-red-600">Errore: {error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900">
+        <p className="text-red-200">Errore: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 px-4 py-10">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h1 className="text-2xl font-bold text-slate-800">{book.title}</h1>
-          <p className="text-slate-500 mb-6">{book.author}</p>
+        <div className="bg-amber-100 border border-amber-700 rounded-xl shadow-md p-6">
+          <h1 className="text-2xl font-bold text-stone-800 text-center">{book.title.charAt(0).toUpperCase() + book.title.slice(1)}</h1>
+          <p className="text-stone-600 mb-6 text-center italic">di {capitalizeWords(book.author)}</p>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex justify-around text-center">
             <div>
-              <p className="text-sm text-slate-500">Pagine totali</p>
-              <p className="font-semibold text-slate-800">{book.total_pages}</p>
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Pagine totali
+              </p>
+              <p className="font-semibold text-stone-800">{book.total_pages}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-500">Data inizio</p>
-              <p className="font-semibold text-slate-800">
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Data inizio
+              </p>
+              <p className="font-semibold text-stone-800">
                 {formatDate(book.start_date) ?? "Non ancora iniziato"}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-500">Data fine</p>
-              <p className="font-semibold text-slate-800">
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Data fine
+              </p>
+              <p className="font-semibold text-stone-800">
                 {formatDate(book.end_date) ?? "In corso"}
               </p>
             </div>
           </div>
-          {/* stats giorni totali di lettura */}
-          <div>
-            <p className="text-sm text-slate-500">
-              Giorni passati da inizio libro
-            </p>
-            <p className="font-semibold text-slate-800">
-              {statsLoading
-                ? "Caricamento..."
-                : statsError
-                  ? "Errore"
-                  : stats.total_reading_time_days}
-            </p>
-          </div>
-          {/* stats percentuale di completamento */}
-          <div>
-            <p className="text-sm text-slate-500">
-              Percentuale di completamento
-            </p>
-            <p className="font-semibold text-slate-800">
-              {statsLoading
-                ? "Caricamento..."
-                : statsError
-                  ? "Errore"
-                  : `${stats.completion_percentage} %`}
-            </p>
-          </div>
-          {/* stats pagine per sessione */}
-          <div>
-            <p className="text-sm text-slate-500">Pagine lette per sessione</p>
 
-            <p className="font-semibold text-slate-800">
-              {statsLoading
-                ? "Caricamento..."
-                : statsError
-                  ? "Errore"
-                  : stats.pages_per_session?.length
-                    ? stats.pages_per_session.join(", ")
-                    : 0}
-            </p>
-          </div>
-          {/* stats conteggio sessioni di lettura */}
-          <div>
-            <p className="text-sm text-slate-500">Sessioni di lettura</p>
-            <p className="font-semibold text-slate-800">
-              {statsLoading
-                ? "Caricamento..."
-                : statsError
-                  ? "Errore"
-                  : stats.reading_days}
-            </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mt-12 text-center">
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Libro iniziato da
+              </p>
+              <p className="font-semibold text-stone-800">
+                {statsLoading
+                  ? "Caricamento..."
+                  : statsError
+                    ? "Errore"
+                    : `${stats.total_reading_time_days} giorni`}
+              </p>
+            </div>
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Completamento libro
+              </p>
+              <p className="font-semibold text-stone-800">
+                {statsLoading
+                  ? "Caricamento..."
+                  : statsError
+                    ? "Errore"
+                    : `${stats.completion_percentage} %`}
+              </p>
+            </div>
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Pagine per sessione
+              </p>
+              <p className="font-semibold text-stone-800">
+                {statsLoading
+                  ? "Caricamento..."
+                  : statsError
+                    ? "Errore"
+                    : stats.pages_per_session?.length
+                      ? stats.pages_per_session.slice(-3).reverse().join(", ")
+                      : 0}
+              </p>
+            </div>
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-wide font-semibold text-amber-700">
+                Sessioni di lettura
+              </p>
+              <p className="font-semibold text-stone-800">
+                {statsLoading
+                  ? "Caricamento..."
+                  : statsError
+                    ? "Errore"
+                    : stats.reading_days}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* accordion considerazioni */}
-        <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
+        <div className="bg-amber-100 border border-amber-700 rounded-xl shadow-md mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
             <button
               onClick={() => setIsConsiderationsOpen(!isConsiderationsOpen)}
               className="flex items-center gap-2 flex-1"
             >
-              <span className="font-semibold text-slate-800">
+              <span className="font-semibold text-stone-800">
                 Considerazioni
               </span>
               <span
-                className={`transition-transform ${isConsiderationsOpen ? "rotate-180" : ""}`}
+                className={`text-amber-700 transition-transform ${isConsiderationsOpen ? "rotate-180" : ""}`}
               >
                 ▼
               </span>
             </button>
-
             <button
-              className="text-indigo-600 font-semibold px-3"
+              className="text-amber-700 hover:text-amber-900 font-semibold px-3"
               onClick={() => setIsAddConsiderationFormOpen(true)}
             >
               Aggiungi +
@@ -348,7 +333,7 @@ function BookDetail() {
           </div>
 
           {isConsiderationsOpen && (
-            <div className="border-t border-slate-100 p-4">
+            <div className="border-t border-amber-700 p-4">
               <ConsiderationsList
                 considerations={considerations}
                 loading={considerationsLoading}
@@ -360,23 +345,21 @@ function BookDetail() {
           )}
         </div>
 
-        {/* accordion quotes */}
-        <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
+        <div className="bg-amber-100 border border-amber-700 rounded-xl shadow-md mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
             <button
               onClick={() => setIsQuotesOpen(!isQuotesOpen)}
               className="flex items-center gap-2 flex-1"
             >
-              <span className="font-semibold text-slate-800">Citazioni</span>
+              <span className="font-semibold text-stone-800">Citazioni</span>
               <span
-                className={`transition-transform ${isQuotesOpen ? "rotate-180" : ""}`}
+                className={`text-amber-700 transition-transform ${isQuotesOpen ? "rotate-180" : ""}`}
               >
                 ▼
               </span>
             </button>
-
             <button
-              className="text-indigo-600 font-semibold px-3"
+              className="text-amber-700 hover:text-amber-900 font-semibold px-3"
               onClick={() => setIsAddQuoteFormOpen(true)}
             >
               Aggiungi +
@@ -384,7 +367,7 @@ function BookDetail() {
           </div>
 
           {isQuotesOpen && (
-            <div className="border-t border-slate-100 p-4">
+            <div className="border-t border-amber-700 p-4">
               <QuotesList
                 quotes={quotes}
                 loading={quotesLoading}
@@ -396,25 +379,23 @@ function BookDetail() {
           )}
         </div>
 
-        {/* accordion sessioni di lettura */}
-        <div className="bg-white rounded-xl shadow-sm mt-4 overflow-hidden">
+        <div className="bg-amber-100 border border-amber-700 rounded-xl shadow-md mt-4 overflow-hidden">
           <div className="flex items-center justify-between w-full p-4">
             <button
               onClick={() => setIsReadingSessionsOpen(!isReadingSessionsOpen)}
               className="flex items-center gap-2 flex-1"
             >
-              <span className="font-semibold text-slate-800">
+              <span className="font-semibold text-stone-800">
                 Sessioni di lettura
               </span>
               <span
-                className={`transition-transform ${isReadingSessionsOpen ? "rotate-180" : ""}`}
+                className={`text-amber-700 transition-transform ${isReadingSessionsOpen ? "rotate-180" : ""}`}
               >
                 ▼
               </span>
             </button>
-
             <button
-              className="text-indigo-600 font-semibold px-3"
+              className="text-amber-700 hover:text-amber-900 font-semibold px-3"
               onClick={() => setIsAddReadingSessionFormOpen(true)}
             >
               Aggiungi +
@@ -422,7 +403,7 @@ function BookDetail() {
           </div>
 
           {isReadingSessionsOpen && (
-            <div className="border-t border-slate-100 p-4">
+            <div className="border-t border-amber-700 p-4">
               <ReadingSessionsList
                 readingSessions={readingSessions}
                 loading={readingSessionsLoading}
@@ -435,7 +416,6 @@ function BookDetail() {
         </div>
       </div>
 
-      {/* form considerazioni */}
       {isAddConsiderationFormOpen && (
         <AddConsiderationModal
           bookId={id}
@@ -451,7 +431,6 @@ function BookDetail() {
         />
       )}
 
-      {/* form quote */}
       {isAddQuoteFormOpen && (
         <AddQuoteModal
           bookId={id}
@@ -467,7 +446,6 @@ function BookDetail() {
         />
       )}
 
-      {/* form sessioni di lettura */}
       {isAddReadingSessionFormOpen && (
         <AddReadingSessionModal
           bookId={id}
@@ -481,7 +459,7 @@ function BookDetail() {
               savedReadingSession,
             ]);
             handleCloseReadingSessionModal();
-            fetchStats(); // Aggiorna le statistiche dopo aver salvato una nuova sessione
+            fetchStats();
           }}
         />
       )}
