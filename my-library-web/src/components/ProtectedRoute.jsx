@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import Navbar from "./Navbar.jsx";
 
 function ProtectedRoute() {
   //prendo il token dal local per verificare se l utente è autenticato
@@ -8,7 +9,12 @@ function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
   // altrimenti mostro la pag
-  return <Outlet />;
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
 }
 
 export default ProtectedRoute;

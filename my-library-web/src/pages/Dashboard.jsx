@@ -143,7 +143,9 @@ function Dashboard() {
               Autore più letto
             </p>
             <p className="text-md text-center text-amber-800">
-              {capitalizeWords(stats.most_read_author)}
+              {stats.most_read_author
+                ? capitalizeWords(stats.most_read_author)
+                : "Nessuno ancora"}
             </p>
           </div>
         </div>
@@ -186,7 +188,9 @@ function Dashboard() {
                     <p className="font-semibold text-stone-800 line-clamp-2">
                       {book.title.charAt(0).toUpperCase() + book.title.slice(1)}
                     </p>
-                    <p className="text-sm text-stone-600 text-center">{capitalizeWords(book.author)}</p>
+                    <p className="text-sm text-stone-600 text-center">
+                      {capitalizeWords(book.author)}
+                    </p>
                   </div>
                 </Link>
 
