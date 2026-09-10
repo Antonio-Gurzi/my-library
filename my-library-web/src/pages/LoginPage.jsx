@@ -27,50 +27,46 @@ function LoginPage() {
 
     try {
       if (isLogin) {
-        // chiamo l endpoint di login insieme all oggetto formData
         const response = await api.post("/login", formData);
-        // setto il token nel localStorage
         localStorage.setItem("token", response.data.token);
-        // reindirizzo l utente nella dashboard
         navigate("/dashboard");
       } else {
-        // chiamo l endopoint di registrazione
         await api.post("/register", formData);
 
-        // mantengo i campi che mi servono SOLO per la login
         const loginCredentials = {
           email: formData.email,
           password: formData.password,
         };
-        // una costa che l utente è registrato chiamo l endopoint di registrazione
         const response = await api.post("/login", loginCredentials);
         localStorage.setItem("token", response.data.token);
         navigate("/dashboard");
       }
     } catch (err) {
-      // err.response potrebbe non esistere (es. server irraggiungibile),
-      // quindi usiamo ?. per non generare un secondo errore mentre gestiamo il primo
-      setError(err.response?.data?.message ?? "Errore di connessione, riprova.");
+      setError(
+        err.response?.data?.message ?? "Errore di connessione, riprova.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // passo da login a registrazione (o viceversa) pulendo l'errore precedente
   const handleToggleMode = () => {
     setError(null);
     setIsLogin(!isLogin);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-sm bg-white rounded-xl shadow-md p-8">
-        <h1 className="text-2xl font-bold text-slate-800 text-center mb-6">
+    <div className="min-h-screen flex items-center justify-around bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 px-4 ">
+      
+      <h1 className="text-2xl font-bold text-amber-700 text-center">
+        Benvenuto su MyLibrary, la tua libreria digitale personale!
+      </h1>
+      <div className="w-full max-w-sm bg-amber-100 border border-amber-700 rounded-xl shadow-md p-8">
+        <h2 className="text-2xl font-bold text-stone-800 text-center mb-6">
           {isLogin ? "Accedi" : "Registrati"}
-        </h1>
+        </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* se non è login ,mostra il campo nome */}
           {!isLogin && (
             <FormInput
               type="text"
@@ -95,7 +91,6 @@ function LoginPage() {
             value={formData.password}
             onChange={handleChange}
           />
-          {/* se non è login ,mostra il campo conferma password */}
           {!isLogin && (
             <FormInput
               type="password"
@@ -115,7 +110,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2.5 rounded-md transition"
+            className="mt-2 bg-amber-700 hover:bg-amber-800 text-amber-50 font-semibold py-2.5 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading ? "Caricamento..." : isLogin ? "Accedi" : "Registrati"}
           </button>
@@ -123,7 +118,7 @@ function LoginPage() {
 
         <button
           onClick={handleToggleMode}
-          className="mt-4 w-full text-sm text-blue-600 hover:underline text-center"
+          className="mt-4 w-full text-sm text-amber-700 hover:text-amber-900 font-semibold text-center transition"
         >
           {isLogin
             ? "Non hai un account? Registrati"

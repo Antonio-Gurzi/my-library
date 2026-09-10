@@ -4,7 +4,6 @@ import FormInput from "./FormInput";
 
 function BookFormModal({ book, onClose, onBookSaved }) {
   const [formData, setFormData] = useState(
-    // se il libro esiste ,mi riempio il form con i dati del libro (per edit mode)
     book
       ? {
           title: book.title,
@@ -13,8 +12,7 @@ function BookFormModal({ book, onClose, onBookSaved }) {
           start_date: book.start_date,
           end_date: book.end_date,
         }
-      : // altrimenti mando un libro vuoto in modo da avere i campi vuoti(per inserire un nuovo libro)
-        {
+      : {
           title: "",
           author: "",
           total_pages: 0,
@@ -60,10 +58,10 @@ function BookFormModal({ book, onClose, onBookSaved }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md"
+        className="bg-amber-100 border border-amber-700 rounded-xl shadow-md p-6 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold text-slate-800 mb-4">
+        <h2 className="text-xl font-bold text-stone-800 mb-4">
           {book ? "Modifica libro" : "Aggiungi libro"}
         </h2>
 
@@ -117,7 +115,7 @@ function BookFormModal({ book, onClose, onBookSaved }) {
           <button
             type="submit"
             disabled={loading}
-            className="bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="bg-amber-700 text-amber-50 font-semibold py-2 rounded-lg hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading
               ? "Salvataggio..."

@@ -102,7 +102,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 px-4 py-6 sm:py-10">
       <div className="max-w-3xl lg:max-w-5xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold text-amber-200 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-amber-200 mb-6 text-center">
           Benvenuto {stats.name}
         </h1>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">

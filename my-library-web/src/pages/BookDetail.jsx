@@ -277,7 +277,7 @@ function BookDetail() {
                   ? "Caricamento..."
                   : statsError
                     ? "Errore"
-                    : `${stats.completion_percentage} %`}
+                    : `${formatDate ? 100 : stats.completion_percentage  } %`}
               </p>
             </div>
             <div className="mt-4">

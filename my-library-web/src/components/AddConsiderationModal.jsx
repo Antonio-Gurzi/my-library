@@ -51,10 +51,10 @@ function AddConsiderationModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md"
+        className="bg-amber-100 border border-amber-700 rounded-xl shadow-md p-6 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold text-slate-800 mb-4">
+        <h2 className="text-xl font-bold text-stone-800 mb-4">
           {consideration ? "Modifica considerazione" : "Nuova considerazione"}
         </h2>
 
@@ -70,13 +70,13 @@ function AddConsiderationModal({
             onChange={(e) => setNote(e.target.value)}
             placeholder="Scrivi la tua considerazione..."
             rows={5}
-            className="border border-slate-300 rounded-md p-2 resize-none"
+            className="border border-amber-700 rounded-md p-2 bg-amber-50 text-stone-800 placeholder:text-stone-500 resize-none focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent"
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="bg-amber-700 text-amber-50 font-semibold py-2 rounded-lg hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading ? "Salvataggio..." : "Salva"}
           </button>

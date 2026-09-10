@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
+import FormInput from "./FormInput";
 
 function AddReadingSessionModal({
   readingSession,
@@ -56,41 +57,60 @@ function AddReadingSessionModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg w-96">
-        <h2 className="text-lg font-semibold mb-4">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-amber-100 border border-amber-700 rounded-xl shadow-md p-6 w-full max-w-md"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-bold text-stone-800 mb-4">
           {readingSession
             ? "Modifica sessione di lettura"
             : "Nuova sessione di lettura"}
         </h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <FormInput
             type="date"
+            name="date"
             value={sessionData.date}
             onChange={(e) =>
               setSessionData({ ...sessionData, date: e.target.value })
             }
-            className="w-full border p-2 mb-3"
           />
 
-          <input
+          <FormInput
             type="number"
+            name="current_page"
+            placeholder="Pagina raggiunta"
             value={sessionData.current_page}
             onChange={(e) =>
               setSessionData({ ...sessionData, current_page: e.target.value })
             }
-            className="w-full border p-2 mb-3"
-            placeholder="Pagina raggiunta"
           />
 
-          {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+          {error && (
+            <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              {error}
+            </p>
+          )}
 
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} disabled={loading}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="text-amber-700 hover:text-amber-900 font-semibold px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
               Annulla
             </button>
-            <button type="submit" disabled={loading}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-amber-700 text-amber-50 font-semibold px-4 py-2 rounded-lg hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
               Salva
             </button>
           </div>
