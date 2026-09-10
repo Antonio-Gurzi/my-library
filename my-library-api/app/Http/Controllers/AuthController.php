@@ -47,4 +47,12 @@ class AuthController extends Controller
         // se le credenziali sono corrett restituisco un messaggio di successo e il token
         return response()->json(['message' => 'Login effettuato con successo', 'token' => $token], 200);
     }
+
+    public function logout(Request $request)
+    {
+        // revoco il token di accesso dell utente autenticato
+        $request->user()->currentAccessToken()->delete();
+        // restituisco un messaggio di successo
+        return response()->json(['message' => 'Logout effettuato con successo'], 200);
+    }
 }
