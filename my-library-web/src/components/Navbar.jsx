@@ -27,7 +27,7 @@ function Navbar() {
       </Link>
       <button
         onClick={handleLogout}
-        className="text-amber-700 hover:text-amber-100 font-bold text-lg transition"
+        className="text-amber-200 hover:text-amber-100 font-bold text-lg transition"
       >
         Logout
       </button>
